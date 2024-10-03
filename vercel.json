@@ -12,6 +12,10 @@
   ],
   "routes": [
     {
+      "src": "/manifest.json",
+      "dest": "/build/web/manifest.json"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "app.py"
     },
