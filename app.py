@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Allow CORS for all domains
 
 API_URL = "https://api-inference.huggingface.co/models/google/gemma-2-2b-it"
 headers = {"Authorization": f"Bearer {os.environ.get('HUGGINGFACE_API_TOKEN')}"}
@@ -17,7 +17,7 @@ def query(payload):
     response = requests.post(API_URL, headers=headers, json=payload)
     return response.json()
 
-@app.route('/generate_lyrics', methods=['POST'])
+@app.route('/api/generate_lyrics', methods=['POST'])
 def generate_lyrics():
     try:
         data = request.json
@@ -46,5 +46,7 @@ def generate_lyrics():
         print(f"Error generating lyrics: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return "Flask API is running. Please use the /api/generate_lyrics endpoint."

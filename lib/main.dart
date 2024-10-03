@@ -29,37 +29,47 @@ class _MusicProductionHomeState extends State<MusicProductionHome> {
   final TextEditingController _genreController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _lyricsController = TextEditingController();
+  bool _isLoading = false;
 
   Future<void> _generateLyrics() async {
-  try {
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:5000/generate_lyrics'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'prompt': _descriptionController.text,
-        'language': _languageController.text,
-        'genre': _genreController.text,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        _lyricsController.text = jsonDecode(response.body)['lyrics'];
-      });
-    } else {
-      print('Server responded with status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      throw Exception('Failed to generate lyrics: ${response.body}');
-    }
-  } catch (e) {
-    print('Error generating lyrics: $e');
     setState(() {
-      _lyricsController.text = 'Error: $e';
+      _isLoading = true;
     });
+    try {
+      final apiUrl = Uri.parse('${Uri.base.origin}/api/generate_lyrics');
+      final response = await http.post(
+        apiUrl,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'prompt': _descriptionController.text,
+          'language': _languageController.text,
+          'genre': _genreController.text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _lyricsController.text = jsonDecode(response.body)['lyrics'];
+        });
+      } else {
+        throw Exception('Failed to generate lyrics: ${response.body}');
+      }
+    } catch (e) {
+      print('Error generating lyrics: $e');
+      setState(() {
+        _lyricsController.text = '';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error generating lyrics: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +99,7 @@ class _MusicProductionHomeState extends State<MusicProductionHome> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _generateLyrics,
+              onPressed: _isLoading ? null : _generateLyrics,
               child: Text('Create/Update Lyrics'),
             ),
             SizedBox(height: 16),
