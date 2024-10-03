@@ -31,45 +31,45 @@ class _MusicProductionHomeState extends State<MusicProductionHome> {
   final TextEditingController _lyricsController = TextEditingController();
   bool _isLoading = false;
 
-  Future<void> _generateLyrics() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final apiUrl = Uri.parse('${Uri.base.origin}/api/generate_lyrics');
-      final response = await http.post(
-        apiUrl,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'prompt': _descriptionController.text,
-          'language': _languageController.text,
-          'genre': _genreController.text,
-        }),
-      );
+       Future<void> _generateLyrics() async {
+       setState(() {
+         _isLoading = true;
+       });
+       try {
+         final apiUrl = Uri.parse('https://music-webapp-fcw2ppdf7-monishdharwadkar17-gmailcoms-projects.vercel.app/api/generate_lyrics');
+         final response = await http.post(
+           apiUrl,
+           headers: <String, String>{
+             'Content-Type': 'application/json; charset=UTF-8',
+           },
+           body: jsonEncode(<String, String>{
+             'prompt': _descriptionController.text,
+             'language': _languageController.text,
+             'genre': _genreController.text,
+           }),
+         );
 
-      if (response.statusCode == 200) {
-        setState(() {
-          _lyricsController.text = jsonDecode(response.body)['lyrics'];
-        });
-      } else {
-        throw Exception('Failed to generate lyrics: ${response.body}');
-      }
-    } catch (e) {
-      print('Error generating lyrics: $e');
-      setState(() {
-        _lyricsController.text = '';
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error generating lyrics: $e')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+         if (response.statusCode == 200) {
+           setState(() {
+             _lyricsController.text = jsonDecode(response.body)['lyrics'];
+           });
+         } else {
+           throw Exception('Failed to generate lyrics: ${response.body}');
+         }
+       } catch (e) {
+         print('Error generating lyrics: $e');
+         setState(() {
+           _lyricsController.text = '';
+         });
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Error generating lyrics: $e')),
+         );
+       } finally {
+         setState(() {
+           _isLoading = false;
+         });
+       }
+     }
 
   @override
   Widget build(BuildContext context) {
