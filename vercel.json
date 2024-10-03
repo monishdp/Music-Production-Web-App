@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "build/web",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/generate_lyrics",
+      "dest": "app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "build/web/$1"
+    }
+  ],
+  "env": {
+    "HUGGINGFACE_API_TOKEN": "@huggingface_api_token"
+  }
+}
